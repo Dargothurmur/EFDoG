@@ -8,49 +8,19 @@ pixels = img_gray.load()
 
 width, height = img_gray.size
 
-
-def optimized_gaussian_blur(image_path, kernel_size=7, sigma=5.0):
-
-    img = Image.open(image_path)
-    img_gray = img.convert("L")
-    
-    img_array = np.array(img_gray, dtype=np.float32)
-    height, width = img_array.shape
-    
-    kernel = GB.blur1D(sigma, kernel_size)
-    kernel = np.array(kernel, dtype=np.float32)
-    
-    kernel = kernel / np.sum(kernel)
-    
-    k_mid = kernel_size // 2
-    
-    padded_img = np.pad(img_array, k_mid, mode='edge')
-    
-    h_blurred = np.zeros_like(img_array)
-    for i in range(kernel_size):
-        weight = kernel[i]
-        h_blurred += weight * padded_img[k_mid:k_mid+height, i:i+width]
-    
-    padded_h_blurred = np.pad(h_blurred, k_mid, mode='edge')
-    
-    v_blurred = np.zeros_like(img_array)
-    for i in range(kernel_size):
-        weight = kernel[i]
-        v_blurred += weight * padded_h_blurred[i:i+height, k_mid:k_mid+width]
-    
-    result = np.clip(v_blurred, 0, 255).astype(np.uint8)
-    output_img = Image.fromarray(result, mode='L')
-    
-    return output_img
-
+image_path = "Images/Thelighthouse.jpg"
 output = "D:/FDoG/EFDoG/FilteredImage/DoG"
-fileName = "Test.jpg"
-outputImage = output + "/" + fileName
+fileName = "DifferenceOfGaussians.jpg"
+outputImageDoG = output + "/" + fileName
+outputImageEDoG = output + "/" + "ExtendedDifferenceOfGaussians.jpg"
 
-kernelSize = 3
-sigma = 1.0
-kernel = GB.blur1D(sigma, kernelSize)
+kernelSize = 7
+sigma = 2.4
+sigma_k = 1.6
+tau = 3
+phi = .1
+threshHold = 56
 
-width, height = img.size
+GB.difference_Of_Guassians(image_path, kernelSize, sigma, sigma_k, threshHold).save(outputImageDoG)
+GB.extended_diff_of_Gaussians(image_path, kernelSize, sigma, sigma_k, threshHold, tau, phi).save(outputImageEDoG)
 
-optimized_gaussian_blur("Images/Thelighthouse.jpg", kernelSize, sigma).save(outputImage)
